@@ -1,0 +1,2 @@
+eclipse.preferences.version=1
+libraries=[{"package"\:"esp8266","platform"\:"esp8266","library"\:"ESP8266WiFi"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"Wire"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"ESP8266mDNS"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"ArduinoOTA"},"Adafruit PWM Servo Driver Library","DallasTemperature","OneWire","PubSubClient"]
