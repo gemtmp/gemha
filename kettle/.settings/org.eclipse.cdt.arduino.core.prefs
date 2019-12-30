@@ -1,0 +1,2 @@
+eclipse.preferences.version=1
+libraries=[{"package"\:"esp32","platform"\:"esp32","library"\:"ESPmDNS"},"DallasTemperature","OneWire",{"package"\:"esp32","platform"\:"esp32","library"\:"SPI"},{"package"\:"esp32","platform"\:"esp32","library"\:"ArduinoOTA"},{"package"\:"esp32","platform"\:"esp32","library"\:"WiFi"},{"package"\:"esp32","platform"\:"esp32","library"\:"Update"},"PubSubClient"]
