@@ -61,8 +61,8 @@ float readTemperature() {
 
 Heater::Heater(uint8_t owPin, const DeviceAddress &sensorAddress,
 		THeatFunction heat, TNoWaterFunction noWater) :
-		oneWire(owPin), oneWireTemp(&oneWire), sensorAddress(sensorAddress), heat(
-				heat), noWaterFunc(noWater) {
+		heat(heat), noWaterFunc(noWater),
+		oneWire(owPin), oneWireTemp(&oneWire), sensorAddress(sensorAddress) {
 }
 
 void Heater::begin() {
