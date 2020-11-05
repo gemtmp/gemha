@@ -1,2 +1,0 @@
-eclipse.preferences.version=1
-libraries=[{"package"\:"esp8266","platform"\:"esp8266","library"\:"ESP8266WiFi"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"SPI"},"Adafruit GFX Library","PubSubClient","MH-Z19",{"package"\:"esp8266","platform"\:"esp8266","library"\:"Wire"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"ArduinoOTA"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"ESP8266mDNS"},{"package"\:"esp8266","platform"\:"esp8266","library"\:"ESP8266"},"EspSoftwareSerial","Adafruit SSD1306","Adafruit HTU21DF Library"]
