@@ -34,22 +34,22 @@
 		<link>
 			<name>core/core</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/cores/esp32</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/cores/esp32</location>
 		</link>
 		<link>
 			<name>core/variant</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/variants/d1_mini32</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/variants/d1_mini32</location>
 		</link>
 		<link>
 			<name>libraries/ArduinoOTA</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/ArduinoOTA</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/ArduinoOTA</location>
 		</link>
 		<link>
 			<name>libraries/ESPmDNS</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/ESPmDNS</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/ESPmDNS</location>
 		</link>
 		<link>
 			<name>libraries/PubSubClient</name>
@@ -57,14 +57,19 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/PubSubClient/2.8.0</locationURI>
 		</link>
 		<link>
+			<name>libraries/SimpleBLE</name>
+			<type>2</type>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/SimpleBLE</location>
+		</link>
+		<link>
 			<name>libraries/Update</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/Update</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/Update</location>
 		</link>
 		<link>
 			<name>libraries/WiFi</name>
 			<type>2</type>
-			<locationURI>ECLIPSE_HOME/arduinoPlugin/packages/esp32/hardware/esp32/1.0.4/libraries/WiFi</locationURI>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/WiFi</location>
 		</link>
 	</linkedResources>
 </projectDescription>

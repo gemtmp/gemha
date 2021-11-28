@@ -8,7 +8,7 @@
 #include <Adafruit_HTU21DF.h>
 
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
+//#include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
 #include "AM2321.h"
