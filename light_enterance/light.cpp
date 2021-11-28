@@ -38,12 +38,15 @@ volatile bool isOnline = false;
 
 TaskHandle_t inputTask;
 TaskHandle_t loggerTask;
+TaskHandle_t tempTask;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 OneWire oneWire(oneWirePin);
 gemha::Temperature temperatures(TOPIC_PREFIX "temp/", &oneWire, &client);
+SemaphoreHandle_t  tempReadMutex;
+SemaphoreHandle_t  tempBinaryMutex;
 
 int getValue(const byte *payload, unsigned int length) {
 	char buf[8];
@@ -134,27 +137,51 @@ void readInputs(void *p) {
 	}
 }
 
+void readTemperatures(void *p) {
+	for (;;) {
+		if (xSemaphoreTake(tempBinaryMutex, portMAX_DELAY) == pdTRUE) {
+
+			xSemaphoreTake(tempReadMutex, portMAX_DELAY);
+			temperatures.read();
+			xSemaphoreGive(tempReadMutex);
+		}
+	}
+}
+
 void setup() {
 	for (auto i: relays) {
 		pinMode(i, OUTPUT);
 		digitalWrite(i, HIGH);
 	}
 
+#ifdef DEBUG
 	Serial.begin(115200);
 
 	xTaskCreate(logger, "logger", 4096, nullptr, 1, &loggerTask);
+#endif
+
+	tempReadMutex = xSemaphoreCreateMutex();
+	tempBinaryMutex = xSemaphoreCreateBinary();
+
 	xTaskCreate(readInputs, "input", 4096, nullptr, 1, &inputTask);
+	xTaskCreate(readTemperatures, "temp", 4096, nullptr, 1, &tempTask);
+
+
 
 	WiFi.mode(WIFI_STA);
-	WiFi.setHostname(otaHostname);
 	WiFi.begin(ssid, passwd);
+	WiFi.setHostname(otaHostname);
 	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+#ifdef DEBUG
 		Serial.println("Connection Failed! Rebooting...");
+#endif
 		delay(1000);
 		ESP.restart();
 	}
+#ifdef DEBUG
 	Serial.print("IP address: ");
 	Serial.println(WiFi.localIP());
+#endif
 	randomSeed(micros());
 
 	ArduinoOTA.setPassword(otaPassword);
@@ -165,6 +192,7 @@ void setup() {
 	client.setCallback(callbackMqtt);
 
 	temperatures.start();
+	temperatures.read();
 }
 
 bool connectMqtt() {
@@ -173,8 +201,10 @@ bool connectMqtt() {
 	String clientId = "LightClient-";
 	clientId += String(random(0xffff), HEX);
 	if (!client.connect(clientId.c_str())) {
+#ifdef DEBUG
 		Serial.print("mqtt connect failed, rc=");
 		Serial.println(client.state());
+#endif
 		return false;
 	}
 	return client.subscribe( TOPIC_PREFIX TOPIC_RELAY "#");
@@ -230,8 +260,11 @@ void loop() {
 			last = now;
 			pereodicForce = true;
 
-			temperatures.read();
-			temperatures.publish();
+			if (xSemaphoreTake(tempReadMutex, 50 * portTICK_PERIOD_MS) == pdTRUE) {
+				temperatures.publish();
+				xSemaphoreGive(tempReadMutex);
+			}
+			xSemaphoreGive(tempBinaryMutex);
 		}
 		publish(force || pereodicForce);
 	}
