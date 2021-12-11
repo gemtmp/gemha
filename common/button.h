@@ -6,8 +6,8 @@ namespace gemha {
 
 class Button {
 public:
-	Button(uint8_t pin) : pin(pin) {
-		pinMode(pin, INPUT_PULLUP);
+	Button(uint8_t pin, bool pullup = true, bool inverse = false) : pin(pin), inverse(inverse) {
+		pinMode(pin, pullup ? INPUT_PULLUP : INPUT);
 	}
 
 	void check() {
@@ -22,13 +22,14 @@ public:
 		}
 	}
 	operator bool() const {
-		return val;
+		return value();
 	}
 	bool value() const {
-		return val;
+		return inverse ? !val :val;
 	}
 private:
 	const uint8_t pin;
+	const bool inverse;
 	bool val = false; // TODO volatile ?
 	uint8_t counter = 0;
 	const static uint8_t delay = 5;
