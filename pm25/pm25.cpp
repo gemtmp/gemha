@@ -17,21 +17,28 @@ const int ResetPin = 4;
 const int SetPin = 2;
 
 TaskHandle_t loggerTask;
+TaskHandle_t readerTask;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
 
 Adafruit_PM25AQI aqi = Adafruit_PM25AQI();
 PM25_AQI_Data data;
-bool dataValid = false;
+volatile bool dataValid = false;
+uint16_t pm10, pm25, pm100;
+volatile uint32_t counts = 0;
 
 void logger(void *p) {
+	uint32_t prevCounts = counts;
 	for (;;) {
 		delay(5000);
 
+		if (prevCounts == counts)
+			continue;
+		prevCounts = counts;
+		Serial.println(counts);
 		if (!dataValid)
 			continue;
-		Serial.println();
 		Serial.println(F("---------------------------------------"));
 		Serial.println(F("Concentration Units (standard)"));
 		Serial.println(F("---------------------------------------"));
@@ -65,6 +72,31 @@ void logger(void *p) {
 	}
 }
 
+bool readPM() {
+	dataValid = aqi.read(&data);
+	if (!dataValid) {
+		return false;
+	}
+	if (counts == 0) {
+		pm10 = data.pm10_env;
+		pm25 = data.pm25_env;
+		pm100 = data.pm100_env;
+	} else {
+		pm10 = (pm10 * 3 + data.pm10_env) / 4;
+		pm25 = (pm25 * 3 + data.pm25_env) / 4;
+		pm100 = (pm100 * 3 + data.pm100_env) / 4;
+	}
+	counts++;
+	return true;
+}
+
+void reader(void *p) {
+	for (;;) {
+		readPM();
+		delay(200);
+	}
+}
+
 void setup()
 {
 
@@ -81,6 +113,8 @@ void setup()
 	digitalWrite(ResetPin, 1);
 	digitalWrite(SetPin, 1);
 
+	xTaskCreate(reader, "reader", 4096, nullptr, 1, &readerTask);
+
 	gemha::initWiFi(otaHostname);
 
 	client.setServer(server, 1883);
@@ -92,18 +126,13 @@ void loop()
 	client.loop();
 	bool isOnline = gemha::connectMqtt(client, otaHostname);
 
-	dataValid = aqi.read(&data);
-	if (!dataValid) {
-#ifdef DEBUG
-		Serial.println("Could not read from AQI");
-#endif
-	} else {
+	if (counts != 0) {
 		char msg[16];
-		snprintf(msg, sizeof(msg), "%d", data.pm10_env);
+		snprintf(msg, sizeof(msg), "%d", pm10);
 		client.publish(TOPIC_PREFIX "pm10", msg);
-		snprintf(msg, sizeof(msg), "%d", data.pm25_env);
+		snprintf(msg, sizeof(msg), "%d", pm25);
 		client.publish(TOPIC_PREFIX "pm25", msg);
-		snprintf(msg, sizeof(msg), "%d", data.pm100_env);
+		snprintf(msg, sizeof(msg), "%d", pm100);
 		client.publish(TOPIC_PREFIX "pm100", msg);
 	}
 
