@@ -8,10 +8,9 @@
 
 namespace gemha {
 
-
 class Temperature {
 public:
-	Temperature(const char* topic, OneWire* oneWire, PubSubClient* client) :
+	Temperature(const char *topic, OneWire *oneWire, PubSubClient *client) :
 			topic(topic), oneWire(oneWire), sensors(oneWire), client(client) {
 		topicLen = strlen(topic);
 	}
@@ -20,20 +19,37 @@ public:
 		sensors.begin();
 	}
 
-	void read() {
+	void readAll() {
+		search();
+		startMeasure();
+		read();
+	}
+
+	void search() {
+		oneWire->reset();
 		oneWire->reset_search();
 
-		addressCount = 0;
-		while (addressCount < ADDRESS_MAX && oneWire->search(devices[addressCount].addr)) {
-			DeviceAddress &addr = devices[addressCount].addr;
+		uint8_t count = 0;
+		while (addressCount < ADDRESS_MAX
+				&& oneWire->search(devices[count].addr)) {
+			DeviceAddress &addr = devices[count].addr;
 			if (sensors.validAddress(addr)) {
 				if (sensors.validFamily(addr)) {
-					addressCount++;
+					count++;
 				}
 			}
 		}
-		sensors.requestTemperatures();
+		for (int i = count; i < addressCount; i++) {
+			devices[i].val = 888;
+		}
+		addressCount = count;
+	}
 
+	void startMeasure() {
+		sensors.requestTemperatures();
+	}
+
+	void read() {
 		for (auto i = 0; i < addressCount; i++) {
 			devices[i].val = sensors.getTempC(devices[i].addr);
 		}
@@ -49,7 +65,7 @@ public:
 
 	void publish() {
 		for (auto i = 0; i < addressCount; i++) {
-			auto& addr = devices[i].addr;
+			auto &addr = devices[i].addr;
 			auto val = devices[i].val;
 #ifdef DEBUG
 			printAddr(addr);
@@ -60,9 +76,9 @@ public:
 			if (val == 85.0 || val == -127.0)
 				continue;
 			char buf[topicLen + 32];
-			sprintf(buf, "%s%02x%02x%02x%02x%02x%02x%02x%02x",
-				topic,
-				addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], addr[6], addr[7]);
+			sprintf(buf, "%s%02x%02x%02x%02x%02x%02x%02x%02x", topic, addr[0],
+					addr[1], addr[2], addr[3], addr[4], addr[5], addr[6],
+					addr[7]);
 			char msg[16];
 			snprintf(msg, sizeof(msg), "%.1f", val);
 
@@ -70,12 +86,12 @@ public:
 		}
 	}
 
-	const char* topic;
+	const char *topic;
 	uint8_t topicLen;
 
-	OneWire* oneWire;
+	OneWire *oneWire;
 	DallasTemperature sensors;
-	PubSubClient* client;
+	PubSubClient *client;
 
 	static const uint8_t ADDRESS_MAX = 8;
 	uint8_t addressCount = 0;
