@@ -2,8 +2,11 @@
 #include <WiFi.h>
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
+#include <EEPROM.h>
+#include <esp_task_wdt.h>
 
-#include "button.h"
+#include "../common/button.h"
+#include "../common/wifi.h"
 
 #include "../config/gemconfig.h"
 
@@ -11,7 +14,7 @@ static const int INPUTS = 11;
 static const int RELAYS = 8;
 
 uint8_t relays[RELAYS] = { 19, 18, 5, 17, 16, 4, 2, 15 };
-Button inputs[INPUTS] = {36, 39, 34, 35, 32, 33, 25, 26, 27, 14, 13};
+gemha::Button inputs[INPUTS] = {36, 39, 34, 35, 32, 33, 25, 26, 27, 14, 13};
 
 uint8_t mapping[INPUTS][1] = {{0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {255}, {255}, {255}};
 
@@ -57,6 +60,9 @@ void processRelay(int channel, int value) {
 	Serial.println(value);
 #endif
 	digitalWrite(relays[channel], !value);
+
+	EEPROM.write(channel, !value);
+	EEPROM.commit();
 }
 
 void callbackMqtt(char *topic, byte *payload, unsigned int length) {
@@ -121,9 +127,11 @@ void readInputs(void *p) {
 }
 
 void setup() {
+	EEPROM.begin(RELAYS);
+	int pos = 0;
 	for (auto i: relays) {
 		pinMode(i, OUTPUT);
-		digitalWrite(i, HIGH);
+		digitalWrite(i, EEPROM.read(pos++));
 	}
 
 	Serial.begin(115200);
@@ -131,36 +139,12 @@ void setup() {
 	xTaskCreate(logger, "logger", 4096, nullptr, 1, &loggerTask);
 	xTaskCreate(readInputs, "input", 4096, nullptr, 1, &inputTask);
 
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, passwd);
-	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-		Serial.println("Connection Failed! Rebooting...");
-		delay(1000);
-		ESP.restart();
-	}
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
-	randomSeed(micros());
+	gemha::initWiFi(otaHostname);
 
-	ArduinoOTA.setPassword(otaPassword);
-	ArduinoOTA.setHostname(otaHostname);
-	ArduinoOTA.begin();
-
+	espClient.setTimeout(1);
 	client.setServer(server, 1883);
 	client.setCallback(callbackMqtt);
-}
-
-bool connectMqtt() {
-	if (client.connected())
-		return true;
-	String clientId = "LightClient-";
-	clientId += String(random(0xffff), HEX);
-	if (!client.connect(clientId.c_str())) {
-		Serial.print("mqtt connect failed, rc=");
-		Serial.println(client.state());
-		return false;
-	}
-	return client.subscribe( TOPIC_PREFIX TOPIC_RELAY "#");
+	client.setSocketTimeout(3);
 }
 
 bool publish(bool force) {
@@ -201,9 +185,10 @@ bool publish(bool force) {
 
 void loop() {
 	static bool force = true;
+	esp_task_wdt_reset();
 	ArduinoOTA.handle();
 	client.loop();
-	isOnline = connectMqtt();
+	isOnline = gemha::connectMqtt(client, otaHostname, TOPIC_PREFIX TOPIC_RELAY "#");
 
 	if (isOnline) {
 		static unsigned long last;
@@ -213,7 +198,8 @@ void loop() {
 			last = now;
 			pereodicForce = true;
 		}
-		publish(force || pereodicForce);
+		if (!publish(force || pereodicForce))
+			client.disconnect();
 	}
 	force = !isOnline;
 

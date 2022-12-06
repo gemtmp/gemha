@@ -52,6 +52,11 @@
 			<locationURI>ECLIPSE_HOME/arduinoPlugin/libraries/DallasTemperature/3.9.0</locationURI>
 		</link>
 		<link>
+			<name>libraries/EEPROM</name>
+			<type>2</type>
+			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/EEPROM</location>
+		</link>
+		<link>
 			<name>libraries/ESPmDNS</name>
 			<type>2</type>
 			<location>/home/gem/Arduino/hardware/espressif/esp32/libraries/ESPmDNS</location>

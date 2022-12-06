@@ -5,6 +5,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <TM1637Display.h>
+#include <esp_task_wdt.h>
 
 #define DEBUG
 
@@ -173,6 +174,7 @@ void setup() {
 		pinMode(i, OUTPUT);
 		digitalWrite(i, HIGH);
 	}
+	display.showNumberDec(0, true);
 
 #ifdef DEBUG
 	Serial.begin(115200);
@@ -217,6 +219,7 @@ bool publish(bool force) {
 
 void loop() {
 	static bool force = true;
+	esp_task_wdt_reset();
 	ArduinoOTA.handle();
 	client.loop();
 	isOnline = gemha::connectMqtt(client, otaHostname, TOPIC_PREFIX "#");

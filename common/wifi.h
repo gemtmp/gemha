@@ -1,9 +1,16 @@
 #pragma once
 
 #include <Arduino.h>
+
+#ifdef ESP8266
+#include <ESP8266WiFi.h>
+#else
 #include <WiFi.h>
+#endif
+
 #include <ArduinoOTA.h>
 #include <PubSubClient.h>
+#include <esp_task_wdt.h>
 
 #include "../config/gemconfig.h"
 
@@ -26,9 +33,13 @@ void initWiFi(const char* hostname) {
 #endif
 	randomSeed(micros());
 
+	ArduinoOTA.onProgress([] (int, int) {esp_task_wdt_reset();});
 	ArduinoOTA.setPassword(otaPassword);
 	ArduinoOTA.setHostname(hostname);
 	ArduinoOTA.begin();
+
+	esp_task_wdt_init(5, true);
+	esp_task_wdt_add(NULL);
 }
 
 bool connectMqtt(PubSubClient& client, const char* hostname, const char* topic = nullptr) {

@@ -4,6 +4,8 @@
 #include <PubSubClient.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <EEPROM.h>
+#include <esp_task_wdt.h>
 
 #define DEBUG
 
@@ -75,6 +77,9 @@ void processRelay(int channel, int value) {
 	Serial.println(value);
 #endif
 	digitalWrite(relays[channel], !value);
+
+	EEPROM.write(channel, !value);
+	EEPROM.commit();
 }
 
 void callbackMqtt(char *topic, byte *payload, unsigned int length) {
@@ -152,9 +157,11 @@ void readTemperatures(void *p) {
 }
 
 void setup() {
+	EEPROM.begin(RELAYS);
+	int pos = 0;
 	for (auto i: relays) {
 		pinMode(i, OUTPUT);
-		digitalWrite(i, HIGH);
+		digitalWrite(i, EEPROM.read(pos++));
 	}
 
 #ifdef DEBUG
@@ -171,8 +178,10 @@ void setup() {
 
 	gemha::initWiFi(otaHostname);
 
+	espClient.setTimeout(1);
 	client.setServer(server, 1883);
 	client.setCallback(callbackMqtt);
+	client.setSocketTimeout(3);
 
 	temperatures.start();
 	temperatures.read();
@@ -216,6 +225,7 @@ bool publish(bool force) {
 
 void loop() {
 	static bool force = true;
+	esp_task_wdt_reset();
 	ArduinoOTA.handle();
 	client.loop();
 	isOnline = gemha::connectMqtt(client, otaHostname, TOPIC_PREFIX TOPIC_RELAY "#");
@@ -234,7 +244,8 @@ void loop() {
 			}
 			xSemaphoreGive(tempBinaryMutex);
 		}
-		publish(force || pereodicForce);
+		if (!publish(force || pereodicForce))
+			client.disconnect();
 	}
 	force = !isOnline;
 

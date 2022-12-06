@@ -32,6 +32,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266mDNS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/PubSubClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/WiFi/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.977538294" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
@@ -50,6 +51,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266mDNS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/PubSubClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/WiFi/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.428250668" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
@@ -68,6 +70,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/ESP8266mDNS/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/PubSubClient/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/co2_oled/libraries/WiFi/src}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1062975628" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>

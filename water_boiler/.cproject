@@ -46,6 +46,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/ArduinoOTA/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/TM1637}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/core}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.cpp.sketch.input.509221892" name="CPP source files" superClass="io.sloeber.compiler.cpp.sketch.input"/>
 							</tool>
@@ -78,6 +80,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/ArduinoOTA/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/TM1637}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/core}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.c.sketch.input.1377420731" name="C Source Files" superClass="io.sloeber.compiler.c.sketch.input"/>
 							</tool>
@@ -110,6 +114,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/ArduinoOTA/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/WiFi/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/libraries/TM1637}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/variant}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/water_boiler/core/core}&quot;"/>
 								</option>
 								<inputType id="io.sloeber.compiler.S.sketch.input.1355074285" name="Assembly source files" superClass="io.sloeber.compiler.S.sketch.input"/>
 							</tool>
