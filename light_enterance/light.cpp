@@ -48,8 +48,6 @@ PubSubClient client(espClient);
 
 OneWire oneWire(oneWirePin);
 gemha::Temperature temperatures(TOPIC_PREFIX "temp/", &oneWire, &client);
-SemaphoreHandle_t  tempReadMutex;
-SemaphoreHandle_t  tempBinaryMutex;
 
 int getValue(const byte *payload, unsigned int length) {
 	char buf[8];
@@ -120,6 +118,7 @@ void logger(void *p) {
 		for (auto i: relays) {
 			Serial.print(digitalRead(i) ? " 1": " 0");
 		}
+		temperatures.log(Serial);
 		Serial.println();
 		delay(1000);
 	}
@@ -144,15 +143,13 @@ void readInputs(void *p) {
 }
 
 void readTemperatures(void *p) {
-	for (;;) {
-		if (xSemaphoreTake(tempBinaryMutex, portMAX_DELAY) == pdTRUE) {
-
-			if (xSemaphoreTake(tempReadMutex, portMAX_DELAY) == pdTRUE) {
-				temperatures.read();
-				xSemaphoreGive(tempReadMutex);
-			}
+	for (uint8_t i = 0; ;i++) {
+		if (i % 4 == 0) {
+			temperatures.search();
 		}
-		delay(500);
+		temperatures.startMeasure();
+		temperatures.read();
+		delay(1000);
 	}
 }
 
@@ -170,9 +167,6 @@ void setup() {
 	xTaskCreate(logger, "logger", 4096, nullptr, 1, &loggerTask);
 #endif
 
-	tempReadMutex = xSemaphoreCreateMutex();
-	tempBinaryMutex = xSemaphoreCreateBinary();
-
 	xTaskCreate(readInputs, "input", 4096, nullptr, 1, &inputTask);
 	xTaskCreate(readTemperatures, "temp", 4096, nullptr, 1, &tempTask);
 
@@ -184,7 +178,7 @@ void setup() {
 	client.setSocketTimeout(3);
 
 	temperatures.start();
-	temperatures.read();
+	temperatures.readAll();
 }
 
 bool publish(bool force) {
@@ -238,11 +232,7 @@ void loop() {
 			last = now;
 			pereodicForce = true;
 
-			if (xSemaphoreTake(tempReadMutex, 50 * portTICK_PERIOD_MS) == pdTRUE) {
-				temperatures.publish();
-				xSemaphoreGive(tempReadMutex);
-			}
-			xSemaphoreGive(tempBinaryMutex);
+			temperatures.publish();
 		}
 		if (!publish(force || pereodicForce))
 			client.disconnect();

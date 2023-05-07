@@ -25,22 +25,34 @@ public:
 		read();
 	}
 
+	void log(Print& p) {
+		p.print(" Temperatures: ");
+		p.print(addressCount);
+	}
+
 	void search() {
 		oneWire->reset();
 		oneWire->reset_search();
 
+		uint8_t prevCount = addressCount;
 		uint8_t count = 0;
-		while (addressCount < ADDRESS_MAX
-				&& oneWire->search(devices[count].addr)) {
-			DeviceAddress &addr = devices[count].addr;
+		DeviceAddress addr;
+		while (count < ADDRESS_MAX
+				&& oneWire->search(addr)) {
 			if (sensors.validAddress(addr)) {
 				if (sensors.validFamily(addr)) {
+					if (!std::equal(addr, addr + 8, devices[count].addr)) {
+						addressCount = 0;
+						std::copy(addr, addr + 8, devices[count].addr);
+						devices[count].val = -127.0;
+					}
+
 					count++;
 				}
 			}
 		}
-		for (int i = count; i < addressCount; i++) {
-			devices[i].val = 888;
+		for (int i = count; i < prevCount; i++) {
+			devices[i].val = -127.0;
 		}
 		addressCount = count;
 	}
@@ -73,7 +85,7 @@ public:
 			Serial.print(val);
 			Serial.println("ºC");
 #endif
-			if (val == 85.0 || val == -127.0)
+			if (val == 85.0 || val < -120.0)
 				continue;
 			char buf[topicLen + 32];
 			sprintf(buf, "%s%02x%02x%02x%02x%02x%02x%02x%02x", topic, addr[0],
@@ -94,7 +106,7 @@ public:
 	PubSubClient *client;
 
 	static const uint8_t ADDRESS_MAX = 8;
-	uint8_t addressCount = 0;
+	volatile uint8_t addressCount = 0;
 	struct Device {
 		DeviceAddress addr;
 		float val;
